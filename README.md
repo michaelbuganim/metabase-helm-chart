@@ -5,11 +5,12 @@ This chart supports StatefulSet deployment, persistent volume storage, and ingre
 
 **Key Features:
 
-StatefulSet Deployment: Ensures Metabase runs in a stateful environment, retaining data across pod restarts.
-Customizable Resources: Easily configure CPU, memory, and storage requirements.
-Ingress Support: Preconfigured ingress with support for ALB annotations and HTTPS.
-Environment Configuration: Set database paths and Java options via environment variables.
-Persistent Storage: PVC-backed storage for database files to ensure data persistence.
+ - StatefulSet Deployment: Ensures Metabase runs in a stateful environment, retaining data across pod restarts.
+ - Customizable Resources: Easily configure CPU, memory, and storage requirements.
+ - Ingress Support: Preconfigured ingress with support for ALB annotations and HTTPS.
+ - Environment Configuration: Set database paths and Java options via environment variables.
+ - Persistent Storage: PVC-backed storage for database files to ensure data persistence.
+
 **Usage:
 
 1. Clone the repository or add it as a Helm repo.
