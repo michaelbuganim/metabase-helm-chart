@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  serviceName: "{{ .Release.Name }}-service"
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      containers:
+        - name: metabase
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          resources:
+            requests:
+              memory: {{ .Values.resources.requests.memory }}
+              cpu: {{ .Values.resources.requests.cpu }}
+            limits:
+              memory: {{ .Values.resources.limits.memory }}
+              cpu: {{ .Values.resources.limits.cpu }}
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+          volumeMounts:
+            - name: metabase-data
+              mountPath: /metabase-data
+          env:
+            - name: MB_DB_FILE
+              value: "{{ .Values.env.MB_DB_FILE }}"
+            - name: JAVA_OPTS
+              value: "{{ .Values.env.JAVA_OPTS }}"
+  volumeClaimTemplates:
+    - metadata:
+        name: metabase-data
+      spec:
+        accessModes: ["{{ .Values.storage.accessMode }}"]
+        resources:
+          requests:
+            storage: {{ .Values.storage.size }}

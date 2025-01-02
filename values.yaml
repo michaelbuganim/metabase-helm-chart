@@ -1,0 +1,41 @@
+replicaCount: 1
+
+image:
+  repository: metabase/metabase
+  tag: v0.52.4
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    memory: 4Gi
+    cpu: 1
+  limits:
+    memory: 4Gi
+    cpu: 1
+
+storage:
+  size: 10Gi
+  accessMode: ReadWriteOnce
+
+ingress:
+  enabled: true
+  host: metabase.example.com
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/certificate-arn: ""
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTPS": 80}]'
+    alb.ingress.kubernetes.io/group.name: metabase
+    alb.ingress.kubernetes.io/target-type: ip
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+env:
+  MB_DB_FILE: /metabase-data/metabase.db
+  JAVA_OPTS: "-Xms4g -Xmx4g -XX:ActiveProcessorCount=1"
+tolerations:
+  - key: "mantis/worker"
+    operator: "Exists"
+    effect: "NoSchedule"
