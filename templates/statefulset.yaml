@@ -14,32 +14,40 @@ spec:
       labels:
         app: {{ .Release.Name }}
     spec:
-      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      tolerations: {{- toYaml .Values.tolerations | nindent 8 }}
       containers:
         - name: metabase
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           resources:
             requests:
-              memory: {{ .Values.resources.requests.memory }}
-              cpu: {{ .Values.resources.requests.cpu }}
+              memory: "{{ .Values.resources.requests.memory | default "512Mi" }}" # Default memory request
+              cpu: "{{ .Values.resources.requests.cpu | default "250m" }}" # Default CPU request
             limits:
-              memory: {{ .Values.resources.limits.memory }}
-              cpu: {{ .Values.resources.limits.cpu }}
+              memory: "{{ .Values.resources.limits.memory | default "1024Mi" }}" # Default memory limit
+              cpu: "{{ .Values.resources.limits.cpu | default "500m" }}" # Default CPU limit
           ports:
-            - containerPort: {{ .Values.service.targetPort }}
+            - containerPort: {{ .Values.service.targetPort | default 3000 }}
           volumeMounts:
             - name: metabase-data
               mountPath: /metabase-data
           env:
+            {{- if .Values.env }}
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: "{{ $value }}"
+            {{- end }}
+            {{- else }}
             - name: MB_DB_FILE
-              value: "{{ .Values.env.MB_DB_FILE }}"
+              value: "/metabase-data/metabase.db" # Default database file path
             - name: JAVA_OPTS
-              value: "{{ .Values.env.JAVA_OPTS }}"
+              value: "-Xms256m -Xmx512m" # Default Java options
+            {{- end }}
   volumeClaimTemplates:
     - metadata:
         name: metabase-data
       spec:
-        accessModes: ["{{ .Values.storage.accessMode }}"]
+        accessModes:
+          - {{ .Values.storage.accessMode | default "ReadWriteOnce" }}
         resources:
           requests:
-            storage: {{ .Values.storage.size }}
+            storage: {{ .Values.storage.size | default "1Gi" }}

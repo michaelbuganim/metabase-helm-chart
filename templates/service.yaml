@@ -6,7 +6,7 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-  - name: http-web
+  - name: http-web # Metabase web service
     protocol: TCP
     port: {{ .Values.service.port }}
     targetPort: {{ .Values.service.targetPort }}

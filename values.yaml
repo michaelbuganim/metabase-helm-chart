@@ -1,41 +1,42 @@
-replicaCount: 1
+replicaCount: 1 # Number of replicas for the Metabase deployment
 
 image:
   repository: metabase/metabase
-  tag: v0.52.4
+  tag: v0.54.9 # latest version as of May 2025
   pullPolicy: IfNotPresent
 
 resources:
   requests:
-    memory: 4Gi
+    memory: 4Gi # Adjust memory requests as needed
     cpu: 1
   limits:
-    memory: 4Gi
+    memory: 4Gi # Adjust memory limits as needed
     cpu: 1
 
 storage:
-  size: 10Gi
+  size: 10Gi # Adjust size as needed
   accessMode: ReadWriteOnce
+  existingClaim: metabase-data
 
 ingress:
   enabled: true
-  host: metabase.example.com
+  host: metabase.example.com # Replace with your actual domain
   annotations:
-    kubernetes.io/ingress.class: alb
-    alb.ingress.kubernetes.io/certificate-arn: ""
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTPS": 80}]'
+    kubernetes.io/ingress.class: alb 
+    alb.ingress.kubernetes.io/certificate-arn: "" # Replace with your actual certificate ARN
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
     alb.ingress.kubernetes.io/group.name: metabase
     alb.ingress.kubernetes.io/target-type: ip
 
 service:
   type: ClusterIP
   port: 80
-  targetPort: 3000
+  targetPort: 3000 # Metabase default port
 
 env:
   MB_DB_FILE: /metabase-data/metabase.db
   JAVA_OPTS: "-Xms4g -Xmx4g -XX:ActiveProcessorCount=1"
 tolerations:
-  - key: "mantis/worker"
+  - key: "" # This toleration allows the pod to be scheduled on any node, including those with taints"
     operator: "Exists"
     effect: "NoSchedule"
